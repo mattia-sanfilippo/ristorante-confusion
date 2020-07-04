@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem, Modal, ModalHeader, ModalBody, Col, Row, Label, Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Control, LocalForm, Errors } from 'react-redux-form';
+import { addComment } from '../redux/ActionCreators';
 
 const required = (val) => val && val.length;
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
@@ -27,8 +28,8 @@ class CommentForm extends Component {
     }
 
     handleSubmit(values) {
-        alert("Current State is: " + JSON.stringify(values));
         this.toggleModal();
+        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
     }
 
     render() {
@@ -51,8 +52,8 @@ class CommentForm extends Component {
                             </Row>
 
                             <Row className="form-group">
-                                <Label htmlFor="name">Your Name</Label>
-                                <Control.text model=".name" id="name" name="name"
+                                <Label htmlFor="author">Your Name</Label>
+                                <Control.text model=".author" id="author" name="author"
                                     placeholder="Your Name"
                                     className="form-control"
                                     validators={{
@@ -61,7 +62,7 @@ class CommentForm extends Component {
                                 />
                                 <Errors
                                     className="text-danger"
-                                    model=".name"
+                                    model=".author"
                                     show="touched"
                                     messages={{
                                         required: 'Required',
@@ -116,7 +117,7 @@ function RenderDish({ dish }) {
     }
 }
 
-function RenderComments({ comments }) {
+function RenderComments({ comments, addComment, dishId }) {
 
     const list = comments.map((comment) => {
         return (
@@ -131,6 +132,7 @@ function RenderComments({ comments }) {
         <div>
             <h4>Comments</h4>
             <ul className="list-unstyled">{list}</ul>
+            <CommentForm dishId={dishId} addComment={addComment}/>
         </div>
     )
 }
@@ -156,8 +158,9 @@ const DishDetail = (props) => {
                         <RenderDish dish={props.dish} />
                     </div>
                     <div className="col-12 col-md-5 m-1">
-                        <RenderComments comments={props.comments} />
-                        <CommentForm />
+                        <RenderComments comments={props.comments} 
+                            addComment={props.addComment}
+                            dishId={props.dish.id} />
                     </div>
                 </div>
             </div>
